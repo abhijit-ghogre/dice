@@ -53,7 +53,7 @@ function Dice(props: Props) {
 
   return (
     <div
-      className={`border h-16 w-16 rounded-lg flex items-center justify-center gap-1 flex-wrap p-3 ${
+      className={`border h-24 w-24 rounded-lg flex items-center justify-center gap-1 flex-wrap p-3 ${
         getDiceColor(index as DiceNumber).bg
       }`}
       style={{ animation: isAnimating ? "shake 0.5s infinite" : "none" }}
@@ -61,7 +61,7 @@ function Dice(props: Props) {
       {Array.from({ length: number }).map((_, dotIndex) => {
         return (
           <div
-            className={`h-[10px] w-[10px] rounded-full ${
+            className={`h-4 w-4 rounded-full ${
               getDiceColor(index as DiceNumber).dot
             }`}
             key={dotIndex}
