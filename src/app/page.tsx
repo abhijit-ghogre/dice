@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Dice, { DiceNumber } from "@/app/components/Dice";
-import Manager from "@/app/components/Manager";
-import { useAudio } from "@/app/hooks/useAudio";
+import Dice, { DiceNumber } from "@/components/Dice";
+import Manager from "@/components/Manager";
+import { useAudio } from "@/hooks/useAudio";
 
 export default function Home() {
   const [players, setPlayers] = useState(["Abhijit"]);
