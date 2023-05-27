@@ -1,113 +1,127 @@
-import Image from 'next/image'
+"use client";
+
+import { useState } from "react";
+import Dice, { DiceNumber } from "@/components/Dice";
+import Manager from "@/components/Manager";
+import { useAudio } from "@/hooks/useAudio";
 
 export default function Home() {
+  const [players, setPlayers] = useState(["Abhijit"]);
+  const [dices, setDices] = useState<DiceNumber[]>([3, 4]);
+  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+  const [isRolling, setIsRolling] = useState(false);
+
+  const [, playAudio] = useAudio("/dice-sound.mp3");
+
+  const roll = () => {
+    if (isRolling) return;
+    if (typeof playAudio === "function") playAudio();
+    setIsRolling(true);
+    const rollInterval = setInterval(() => {
+      rollOnce();
+    }, 100);
+
+    setTimeout(() => {
+      clearInterval(rollInterval);
+      const newPlayerIndex = (currentPlayerIndex + 1) % players.length;
+      setCurrentPlayerIndex(Number.isNaN(newPlayerIndex) ? 0 : newPlayerIndex);
+      setIsRolling(false);
+    }, 3000);
+  };
+
+  const rollOnce = () => {
+    const newDices: DiceNumber[] = dices.map((_) => {
+      return (Math.floor(Math.random() * 6) + 1) as DiceNumber;
+    });
+    setDices(newDices);
+  };
+
+  const getTotal = () => {
+    return dices.reduce((total, dice) => {
+      return total + dice;
+    }, 0);
+  };
+
+  const getNextPlayer = () => {
+    return players[(currentPlayerIndex + 1) % players.length];
+  };
+
+  const handleAddPlayer = (newPlayer: string) => {
+    setPlayers([...players, newPlayer]);
+  };
+
+  const handleRemovePlayer = (index: number) => {
+    setPlayers(players.filter((_, i) => i !== index));
+  };
+
+  const handleDiceIncrement = () => {
+    setDices([...dices, 1]);
+  };
+
+  const handleDiceDecrement = () => {
+    setDices(dices.slice(0, dices.length - 1));
+  };
+
+  const handlePlayerMoveUp = (index: number) => {
+    if (index === 0) return;
+    setPlayers(
+      players.map((player, i) => {
+        if (i === index) return players[i - 1];
+        if (i === index - 1) return players[i + 1];
+        return player;
+      })
+    );
+  };
+
+  const handlePlayerMoveDown = (index: number) => {
+    if (index === players.length - 1) return;
+    setPlayers(
+      players.map((player, i) => {
+        if (i === index) return players[i + 1];
+        if (i === index + 1) return players[i - 1];
+        return player;
+      })
+    );
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+    <main className="h-screen w-screen flex items-center justify-center">
+      <Manager
+        players={players}
+        dices={dices}
+        onAddPlayer={handleAddPlayer}
+        onRemovePlayer={handleRemovePlayer}
+        onDiceIncrement={handleDiceIncrement}
+        onDiceDecrement={handleDiceDecrement}
+        onPlayerMoveUp={handlePlayerMoveUp}
+        onPlayerMoveDown={handlePlayerMoveDown}
+      />
+      <div onClick={roll} className="bg-black bg-opacity-10 rounded-xl p-5">
+        {!!players[currentPlayerIndex] && (
+          <div className="font-bold text-lg text-center">
+            {players[currentPlayerIndex]} played
+          </div>
+        )}
+        <br />
+        <div className="flex gap-4 justify-center flex-wrap">
+          {dices.map((dice, index) => (
+            <Dice
+              key={index}
+              number={dice}
+              isAnimating={isRolling}
+              index={index}
             />
-          </a>
+          ))}
         </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+        <div className="mt-4 text-center font-bold text-xl">{getTotal()}</div>
+        <br />
+        <br />
+        {!!getNextPlayer() && (
+          <div className="text-center text-gray-500">
+            <span className="text-lg">{getNextPlayer()}</span> plays next
+          </div>
+        )}
       </div>
     </main>
-  )
+  );
 }
