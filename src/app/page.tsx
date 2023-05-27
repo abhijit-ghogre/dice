@@ -85,7 +85,7 @@ export default function Home() {
   };
 
   return (
-    <main className="h-screen w-screen flex items-center justify-center">
+    <main className="h-full w-screen flex items-center justify-center fixed top-0 left-0">
       <Manager
         players={players}
         dices={dices}

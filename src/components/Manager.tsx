@@ -49,7 +49,7 @@ function Manager(props: Props) {
   return (
     <div
       className={`fixed left-0 bottom-0 w-full bg-gray-400 p-2 transition-all ${
-        isOpen ? "h-screen overflow-auto" : "h-[54px] overflow-hidden"
+        isOpen ? "h-full overflow-auto" : "h-[54px] overflow-hidden"
       }`}
     >
       <div className="justify-center flex">
